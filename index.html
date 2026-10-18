@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server - Alacak - Verecek Takibi</title>
+    <title>TürkAlp - Alacak - Verecek Takibi</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 10px; color: #333; }
         .box { background: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ccc; }
@@ -19,8 +19,9 @@
         #sifreEkrani { position: fixed; inset: 0; background: #f4f4f4; z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         #yukleniyor { text-align: center; padding: 20px; color: #0066cc; font-weight: bold; }
 
-        .baslik-ust { color: #cc0000; font-size: 24px; font-weight: bold; margin: 0; letter-spacing: 1px; line-height: 1.1; }
-        .baslik-alt { color: #0066cc; font-size: 14px; margin-top: 2px; font-weight: bold; display: block; }
+        /* Sadece Logo Odaklı Header Stilleri */
+        .header-logo-main { max-height: 50px; width: auto; object-fit: contain; display: block; margin: 0 auto; }
+        .baslik-alt { color: #0066cc; font-size: 14px; margin-top: 4px; font-weight: bold; display: block; }
 
         .menu-container { position: relative; display: inline-block; }
         .menu-content { display: none; position: absolute; right: 0; background-color: #f9f9f9; min-width: 140px; box-shadow: 0px 8px 16px rgba(0,0,0,0.2); z-index: 1; border-radius: 6px; border: 1px solid #ccc; overflow: hidden; }
@@ -47,8 +48,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const SIFRE_KEY = 'tunali_sifre_v1';
-        const OTURUM_KEY = 'tunali_oturum_acik';
+        // HER MÜŞTERİ İÇİN BURAYI DEĞİŞTİREBİLİRSİNİZ (Örn: musteri1_sifre, musteri2_sifre)
+        const SIFRE_KEY = 'turkalp_sifre_v1';
+        const OTURUM_KEY = 'turkalp_oturum_acik';
+        
+        // HER MÜŞTERİNİN KENDİ VERİTABANI TABLOSU (Koleksiyon adı)
+        const FIRESTORE_KOLLEKSIYON = 'musteriler';
+
         let globalListe = [];
         let seciliMusteriId = null;
 
@@ -126,7 +132,7 @@
             var yukleniyor = document.getElementById('yukleniyor');
             if (yukleniyor) yukleniyor.style.display = 'block';
             try {
-                const querySnapshot = await getDocs(collection(db, "tunali_musteriler"));
+                const querySnapshot = await getDocs(collection(db, FIRESTORE_KOLLEKSIYON));
                 globalListe = [];
                 querySnapshot.forEach((docSnap) => {
                     globalListe.push(docSnap.data());
@@ -161,7 +167,7 @@
             var yukleniyor = document.getElementById('yukleniyor');
             if (yukleniyor) yukleniyor.style.display = 'block';
             try {
-                await setDoc(doc(db, "tunali_musteriler", idVal), yeniMusteri);
+                await setDoc(doc(db, FIRESTORE_KOLLEKSIYON, idVal), yeniMusteri);
                 adInput.value = "";
                 await verileriBuluttanCek();
                 alert("Müşteri buluta başarıyla kaydedildi!");
@@ -302,7 +308,7 @@
                 var yukleniyor = document.getElementById('yukleniyor');
                 if (yukleniyor) yukleniyor.style.display = 'block';
                 try {
-                    await setDoc(doc(db, "tunali_musteriler", id), globalListe[index]);
+                    await setDoc(doc(db, FIRESTORE_KOLLEKSIYON, id), globalListe[index]);
                     await verileriBuluttanCek();
                     alert("İşlem buluta başarıyla kaydedildi!");
                 } catch (e) {
@@ -336,7 +342,7 @@
                 var yukleniyor = document.getElementById('yukleniyor');
                 if (yukleniyor) yukleniyor.style.display = 'block';
                 try {
-                    await setDoc(doc(db, "tunali_musteriler", musteriId), musteri);
+                    await setDoc(doc(db, FIRESTORE_KOLLEKSIYON, musteriId), musteri);
                     await verileriBuluttanCek();
                     alert("İşlem silindi ve bakiye güncellendi!");
                 } catch (e) {
@@ -352,7 +358,7 @@
                 var yukleniyor = document.getElementById('yukleniyor');
                 if (yukleniyor) yukleniyor.style.display = 'block';
                 try {
-                    await deleteDoc(doc(db, "tunali_musteriler", id));
+                    await deleteDoc(doc(db, FIRESTORE_KOLLEKSIYON, id));
                     seciliMusteriId = null;
                     await verileriBuluttanCek();
                     alert("Müşteri silindi!");
@@ -371,7 +377,7 @@
     <div id="sifreEkrani">
         <div class="box" style="width: 100%; max-width: 320px; text-align: center;">
             <div style="margin-bottom: 15px;">
-                <h2 class="baslik-ust">TUNALI</h2>
+                <img src="logo.png" alt="Logo" class="header-logo-main">
                 <span class="baslik-alt">Alacak - Verecek Takibi</span>
             </div>
             <p id="sifreBilgi" style="font-size: 13px; color: #666;">Lütfen giriş şifrenizi girin:</p>
@@ -384,7 +390,7 @@
     <div id="anaUygulama" style="display:none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <div>
-                <h2 class="baslik-ust">TUNALI</h2>
+                <img src="logo.png" alt="Logo" class="header-logo-main" style="margin:0;">
                 <span class="baslik-alt">Alacak - Verecek Takibi</span>
             </div>
             
@@ -414,8 +420,4 @@
         <div id="yukleniyor">Veriler buluttan yükleniyor...</div>
 
         <!-- LİSTE -->
-        <h3>Müşteri Listesi (<span id="sayac">0</span>)</h3>
-        <div id="listeContainer"></div>
-    </div>
-</body>
-  </html>
+        <h3>Müşteri Listesi (<span id="sayac">0</span>)</h
