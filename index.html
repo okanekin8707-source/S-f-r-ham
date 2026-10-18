@@ -16,6 +16,7 @@
         .history { background: white; padding: 8px; border-radius: 4px; margin-top: 6px; font-size: 12px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
         .red { color: #cc0000; font-weight: bold; }
         .green { color: #009933; font-weight: bold; }
+        #sifreEkrani { position: fixed; inset: 0; background: #f4f4f4; z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         #yukleniyor { text-align: center; padding: 20px; color: #0066cc; font-weight: bold; }
 
         .baslik-ust { color: #cc0000; font-size: 24px; font-weight: bold; margin: 0; letter-spacing: 1px; line-height: 1.1; }
@@ -52,13 +53,49 @@
         let seciliMusteriId = null;
 
         window.onload = function() {
-            if (!localStorage.getItem(SIFRE_KEY)) {
-                localStorage.setItem(SIFRE_KEY, '1234'); 
+            var kayitliSifre = localStorage.getItem(SIFRE_KEY);
+            var bilgiEl = document.getElementById('sifreBilgi');
+            if (!kayitliSifre) {
+                if (bilgiEl) bilgiEl.textContent = "İlk kullanım için yeni bir şifre belirleyin:";
+            } else {
+                var oturumAcik = localStorage.getItem(OTURUM_KEY);
+                if (oturumAcik === 'true') {
+                    gizliEkraniKapat();
+                }
             }
-            localStorage.setItem(OTURUM_KEY, 'true'); 
-            
-            verileriBuluttanCek();
         };
+
+        window.sifreKontrol = function() {
+            var girilen = document.getElementById('girisSifre').value;
+            var kayitliSifre = localStorage.getItem(SIFRE_KEY);
+
+            if (!kayitliSifre) {
+                if (girilen.trim() === "") {
+                    alert("Şifre boş olamaz!");
+                    return;
+                }
+                localStorage.setItem(SIFRE_KEY, girilen.trim());
+                localStorage.setItem(OTURUM_KEY, 'true');
+                alert("Şifreniz başarıyla kaydedildi!");
+                gizliEkraniKapat();
+            } else {
+                if (girilen === kayitliSifre) {
+                    localStorage.setItem(OTURUM_KEY, 'true');
+                    gizliEkraniKapat();
+                } else {
+                    alert("Hatalı şifre!");
+                    document.getElementById('girisSifre').value = "";
+                }
+            }
+        };
+
+        function gizliEkraniKapat() {
+            var sEkrani = document.getElementById('sifreEkrani');
+            var aUygulama = document.getElementById('anaUygulama');
+            if (sEkrani) sEkrani.style.display = 'none';
+            if (aUygulama) aUygulama.style.display = 'block';
+            verileriBuluttanCek();
+        }
 
         window.menuAcKapat = function() {
             document.getElementById('ayarlarMenu').classList.toggle('menu-show');
@@ -329,8 +366,22 @@
     </script>
 </head>
 <body>
-    <!-- ANA UYGULAMA (Doğrudan şifresiz açılır) -->
-    <div id="anaUygulama">
+
+    <!-- ŞİFRE GİRİŞ EKRANI -->
+    <div id="sifreEkrani">
+        <div class="box" style="width: 100%; max-width: 320px; text-align: center;">
+            <div style="margin-bottom: 15px;">
+                <h2 class="baslik-ust">ABC</h2>
+                <span class="baslik-alt">Alacak - Verecek Takibi</span>
+            </div>
+            <p id="sifreBilgi" style="font-size: 13px; color: #666;">Lütfen giriş şifrenizi girin:</p>
+            <input type="password" id="girisSifre" placeholder="Şifre" style="text-align: center; font-size: 16px;">
+            <button onclick="sifreKontrol()">Giriş Yap</button>
+        </div>
+    </div>
+
+    <!-- ANA UYGULAMA -->
+    <div id="anaUygulama" style="display:none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <div>
                 <h2 class="baslik-ust">ABC</h2>
