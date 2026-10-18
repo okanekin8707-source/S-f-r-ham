@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ahmet - Alacak - Verecek Takibi</title> <!-- BURADAN FİRMA İSMİNİ DEĞİŞTİREBİLİRSİNİZ -->
+    <title> hamak - Alacak - Verecek Takibi</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 10px; color: #333; }
         .box { background: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ccc; }
@@ -19,8 +19,8 @@
         #sifreEkrani { position: fixed; inset: 0; background: #f4f4f4; z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         #yukleniyor { text-align: center; padding: 20px; color: #0066cc; font-weight: bold; }
 
-        .header-logo-main { max-height: 50px; width: auto; object-fit: contain; display: block; margin: 0 auto; }
-        .baslik-alt { color: #0066cc; font-size: 14px; margin-top: 4px; font-weight: bold; display: block; text-align: center; }
+        .baslik-ust { color: #cc0000; font-size: 24px; font-weight: bold; margin: 0; letter-spacing: 1px; line-height: 1.1; }
+        .baslik-alt { color: #0066cc; font-size: 14px; margin-top: 2px; font-weight: bold; display: block; }
 
         .menu-container { position: relative; display: inline-block; }
         .menu-content { display: none; position: absolute; right: 0; background-color: #f9f9f9; min-width: 140px; box-shadow: 0px 8px 16px rgba(0,0,0,0.2); z-index: 1; border-radius: 6px; border: 1px solid #ccc; overflow: hidden; }
@@ -47,22 +47,46 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // HER MÜŞTERİ İÇİN DEĞİŞTİRİLECEK ALANLAR:
-        const SIFRE_KEY = 'ahmet_sifre_v1';         // Örn: ahmet_sifre_v1, mehmet_sifre_v1
-        const OTURUM_KEY = 'ahmet_oturum_acik';
-        const FIRESTORE_KOLLEKSIYON = 'ahmet_musteriler'; // Her müşterinin kendi Firebase tablosu (Örn: ahmet_musteriler)
-
+        const SIFRE_KEY = 'tunali_sifre_v1';
+        const OTURUM_KEY = 'tunali_oturum_acik';
         let globalListe = [];
         let seciliMusteriId = null;
 
         window.onload = function() {
-            // İLK AÇILIŞTA ŞİFRE SORMAMASI İÇİN OTOMATİK OTURUM AÇTIRIYORuz:
-            if (!localStorage.getItem(SIFRE_KEY)) {
-                localStorage.setItem(SIFRE_KEY, '1234'); // Varsayılan geçici şifre
+            var kayitliSifre = localStorage.getItem(SIFRE_KEY);
+            var bilgiEl = document.getElementById('sifreBilgi');
+            if (!kayitliSifre) {
+                if (bilgiEl) bilgiEl.textContent = "İlk kullanım için yeni bir şifre belirleyin:";
+            } else {
+                var oturumAcik = localStorage.getItem(OTURUM_KEY);
+                if (oturumAcik === 'true') {
+                    gizliEkraniKapat();
+                }
             }
-            localStorage.setItem(OTURUM_KEY, 'true'); // Direkt şifresiz açılmasını sağlar
-            
-            gizliEkraniKapat();
+        };
+
+        window.sifreKontrol = function() {
+            var girilen = document.getElementById('girisSifre').value;
+            var kayitliSifre = localStorage.getItem(SIFRE_KEY);
+
+            if (!kayitliSifre) {
+                if (girilen.trim() === "") {
+                    alert("Şifre boş olamaz!");
+                    return;
+                }
+                localStorage.setItem(SIFRE_KEY, girilen.trim());
+                localStorage.setItem(OTURUM_KEY, 'true');
+                alert("Şifreniz başarıyla kaydedildi!");
+                gizliEkraniKapat();
+            } else {
+                if (girilen === kayitliSifre) {
+                    localStorage.setItem(OTURUM_KEY, 'true');
+                    gizliEkraniKapat();
+                } else {
+                    alert("Hatalı şifre!");
+                    document.getElementById('girisSifre').value = "";
+                }
+            }
         };
 
         function gizliEkraniKapat() {
@@ -102,7 +126,7 @@
             var yukleniyor = document.getElementById('yukleniyor');
             if (yukleniyor) yukleniyor.style.display = 'block';
             try {
-                const querySnapshot = await getDocs(collection(db, FIRESTORE_KOLLEKSIYON));
+                const querySnapshot = await getDocs(collection(db, "tunali_musteriler"));
                 globalListe = [];
                 querySnapshot.forEach((docSnap) => {
                     globalListe.push(docSnap.data());
@@ -137,7 +161,7 @@
             var yukleniyor = document.getElementById('yukleniyor');
             if (yukleniyor) yukleniyor.style.display = 'block';
             try {
-                await setDoc(doc(db, FIRESTORE_KOLLEKSIYON, idVal), yeniMusteri);
+                await setDoc(doc(db, "tunali_musteriler", idVal), yeniMusteri);
                 adInput.value = "";
                 await verileriBuluttanCek();
                 alert("Müşteri buluta başarıyla kaydedildi!");
@@ -214,7 +238,7 @@
                             var hRenk = h.tip === 'verdim' ? 'red' : 'green';
                             icerik += '<div class="history">' +
                                 '<div><b>' + h.aciklama + '</b> <small>(' + h.tarih + ')</small><br>' +
-                                '<span class="' + hRenk + '">' + (h.tip === 'verdim' ? '+' : '-') + Number(h.tatur).toFixed(2) + ' ₺</span></div>' +
+                                '<span class="' + hRenk + '">' + (h.tip === 'verdim' ? '+' : '-') + Number(h.tutar).toFixed(2) + ' ₺</span></div>' +
                                 '<button onclick="event.stopPropagation(); hareketSil(\'' + m.id + '\', ' + index + ')" style="width:auto; padding:4px 8px; background:#cc0000; font-size:11px;">Sil</button>' +
                             '</div>';
                         });
@@ -278,7 +302,7 @@
                 var yukleniyor = document.getElementById('yukleniyor');
                 if (yukleniyor) yukleniyor.style.display = 'block';
                 try {
-                    await setDoc(doc(db, FIRESTORE_KOLLEKSIYON, id), globalListe[index]);
+                    await setDoc(doc(db, "tunali_musteriler", id), globalListe[index]);
                     await verileriBuluttanCek();
                     alert("İşlem buluta başarıyla kaydedildi!");
                 } catch (e) {
@@ -312,7 +336,7 @@
                 var yukleniyor = document.getElementById('yukleniyor');
                 if (yukleniyor) yukleniyor.style.display = 'block';
                 try {
-                    await setDoc(doc(db, FIRESTORE_KOLLEKSIYON, musteriId), musteri);
+                    await setDoc(doc(db, "tunali_musteriler", musteriId), musteri);
                     await verileriBuluttanCek();
                     alert("İşlem silindi ve bakiye güncellendi!");
                 } catch (e) {
@@ -328,7 +352,7 @@
                 var yukleniyor = document.getElementById('yukleniyor');
                 if (yukleniyor) yukleniyor.style.display = 'block';
                 try {
-                    await deleteDoc(doc(db, FIRESTORE_KOLLEKSIYON, id));
+                    await deleteDoc(doc(db, "tunali_musteriler", id));
                     seciliMusteriId = null;
                     await verileriBuluttanCek();
                     alert("Müşteri silindi!");
@@ -342,11 +366,25 @@
     </script>
 </head>
 <body>
-    <!-- ANA UYGULAMA (Doğrudan şifresiz açılır) -->
-    <div id="anaUygulama">
+
+    <!-- ŞİFRE GİRİŞ EKRANI -->
+    <div id="sifreEkrani">
+        <div class="box" style="width: 100%; max-width: 320px; text-align: center;">
+            <div style="margin-bottom: 15px;">
+                <h2 class="baslik-ust">TUNALI</h2>
+                <span class="baslik-alt">Alacak - Verecek Takibi</span>
+            </div>
+            <p id="sifreBilgi" style="font-size: 13px; color: #666;">Lütfen giriş şifrenizi girin:</p>
+            <input type="password" id="girisSifre" placeholder="Şifre" style="text-align: center; font-size: 16px;">
+            <button onclick="sifreKontrol()">Giriş Yap</button>
+        </div>
+    </div>
+
+    <!-- ANA UYGULAMA -->
+    <div id="anaUygulama" style="display:none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <div>
-                <img src="logo.png" alt="Logo" class="header-logo-main" style="margin:0;">
+                <h2 class="baslik-ust">TUNALI</h2>
                 <span class="baslik-alt">Alacak - Verecek Takibi</span>
             </div>
             
@@ -381,4 +419,3 @@
     </div>
 </body>
 </html>
-
