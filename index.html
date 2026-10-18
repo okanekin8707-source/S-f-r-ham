@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>asd v.2 mb - Alacak - Verecek Takibi</title>
+    <title>ABC - Alacak - Verecek Takibi</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 10px; color: #333; }
         .box { background: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ccc; }
@@ -16,7 +16,6 @@
         .history { background: white; padding: 8px; border-radius: 4px; margin-top: 6px; font-size: 12px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
         .red { color: #cc0000; font-weight: bold; }
         .green { color: #009933; font-weight: bold; }
-        #sifreEkrani { position: fixed; inset: 0; background: #f4f4f4; z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         #yukleniyor { text-align: center; padding: 20px; color: #0066cc; font-weight: bold; }
 
         .baslik-ust { color: #cc0000; font-size: 24px; font-weight: bold; margin: 0; letter-spacing: 1px; line-height: 1.1; }
@@ -47,55 +46,19 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const SIFRE_KEY = 'asd_sifre_v1';
-        const OTURUM_KEY = 'asd_oturum_acik';
+        const SIFRE_KEY = 'abc_sifre_v1';
+        const OTURUM_KEY = 'abc_oturum_acik';
         let globalListe = [];
         let seciliMusteriId = null;
 
         window.onload = function() {
-            var kayitliSifre = localStorage.getItem(SIFRE_KEY);
-            var bilgiEl = document.getElementById('sifreBilgi');
-            if (!kayitliSifre) {
-                if (bilgiEl) bilgiEl.textContent = "İlk kullanım için yeni bir şifre belirleyin:";
-            } else {
-                var oturumAcik = localStorage.getItem(OTURUM_KEY);
-                if (oturumAcik === 'true') {
-                    gizliEkraniKapat();
-                }
+            if (!localStorage.getItem(SIFRE_KEY)) {
+                localStorage.setItem(SIFRE_KEY, '1234'); 
             }
-        };
-
-        window.sifreKontrol = function() {
-            var girilen = document.getElementById('girisSifre').value;
-            var kayitliSifre = localStorage.getItem(SIFRE_KEY);
-
-            if (!kayitliSifre) {
-                if (girilen.trim() === "") {
-                    alert("Şifre boş olamaz!");
-                    return;
-                }
-                localStorage.setItem(SIFRE_KEY, girilen.trim());
-                localStorage.setItem(OTURUM_KEY, 'true');
-                alert("Şifreniz başarıyla kaydedildi!");
-                gizliEkraniKapat();
-            } else {
-                if (girilen === kayitliSifre) {
-                    localStorage.setItem(OTURUM_KEY, 'true');
-                    gizliEkraniKapat();
-                } else {
-                    alert("Hatalı şifre!");
-                    document.getElementById('girisSifre').value = "";
-                }
-            }
-        };
-
-        function gizliEkraniKapat() {
-            var sEkrani = document.getElementById('sifreEkrani');
-            var aUygulama = document.getElementById('anaUygulama');
-            if (sEkrani) sEkrani.style.display = 'none';
-            if (aUygulama) aUygulama.style.display = 'block';
+            localStorage.setItem(OTURUM_KEY, 'true'); 
+            
             verileriBuluttanCek();
-        }
+        };
 
         window.menuAcKapat = function() {
             document.getElementById('ayarlarMenu').classList.toggle('menu-show');
@@ -126,7 +89,7 @@
             var yukleniyor = document.getElementById('yukleniyor');
             if (yukleniyor) yukleniyor.style.display = 'block';
             try {
-                const querySnapshot = await getDocs(collection(db, "tunali_musteriler"));
+                const querySnapshot = await getDocs(collection(db, "abc_musteriler"));
                 globalListe = [];
                 querySnapshot.forEach((docSnap) => {
                     globalListe.push(docSnap.data());
@@ -161,7 +124,7 @@
             var yukleniyor = document.getElementById('yukleniyor');
             if (yukleniyor) yukleniyor.style.display = 'block';
             try {
-                await setDoc(doc(db, "tunali_musteriler", idVal), yeniMusteri);
+                await setDoc(doc(db, "abc_musteriler", idVal), yeniMusteri);
                 adInput.value = "";
                 await verileriBuluttanCek();
                 alert("Müşteri buluta başarıyla kaydedildi!");
@@ -302,7 +265,7 @@
                 var yukleniyor = document.getElementById('yukleniyor');
                 if (yukleniyor) yukleniyor.style.display = 'block';
                 try {
-                    await setDoc(doc(db, "tunali_musteriler", id), globalListe[index]);
+                    await setDoc(doc(db, "abc_musteriler", id), globalListe[index]);
                     await verileriBuluttanCek();
                     alert("İşlem buluta başarıyla kaydedildi!");
                 } catch (e) {
@@ -336,7 +299,7 @@
                 var yukleniyor = document.getElementById('yukleniyor');
                 if (yukleniyor) yukleniyor.style.display = 'block';
                 try {
-                    await setDoc(doc(db, "tunali_musteriler", musteriId), musteri);
+                    await setDoc(doc(db, "abc_musteriler", musteriId), musteri);
                     await verileriBuluttanCek();
                     alert("İşlem silindi ve bakiye güncellendi!");
                 } catch (e) {
@@ -352,7 +315,7 @@
                 var yukleniyor = document.getElementById('yukleniyor');
                 if (yukleniyor) yukleniyor.style.display = 'block';
                 try {
-                    await deleteDoc(doc(db, "tunali_musteriler", id));
+                    await deleteDoc(doc(db, "abc_musteriler", id));
                     seciliMusteriId = null;
                     await verileriBuluttanCek();
                     alert("Müşteri silindi!");
@@ -366,25 +329,11 @@
     </script>
 </head>
 <body>
-
-    <!-- ŞİFRE GİRİŞ EKRANI -->
-    <div id="sifreEkrani">
-        <div class="box" style="width: 100%; max-width: 320px; text-align: center;">
-            <div style="margin-bottom: 15px;">
-                <h2 class="baslik-ust">TUNALI</h2>
-                <span class="baslik-alt">Alacak - Verecek Takibi</span>
-            </div>
-            <p id="sifreBilgi" style="font-size: 13px; color: #666;">Lütfen giriş şifrenizi girin:</p>
-            <input type="password" id="girisSifre" placeholder="Şifre" style="text-align: center; font-size: 16px;">
-            <button onclick="sifreKontrol()">Giriş Yap</button>
-        </div>
-    </div>
-
-    <!-- ANA UYGULAMA -->
-    <div id="anaUygulama" style="display:none;">
+    <!-- ANA UYGULAMA (Doğrudan şifresiz açılır) -->
+    <div id="anaUygulama">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <div>
-                <h2 class="baslik-ust">TUNALI</h2>
+                <h2 class="baslik-ust">ABC</h2>
                 <span class="baslik-alt">Alacak - Verecek Takibi</span>
             </div>
             
