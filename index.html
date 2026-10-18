@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TürkAlp - Alacak - Verecek Takibi</title>
+    <title>Ahmet - Alacak - Verecek Takibi</title> <!-- BURADAN FİRMA İSMİNİ DEĞİŞTİREBİLİRSİNİZ -->
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 10px; color: #333; }
         .box { background: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ccc; }
@@ -19,9 +19,8 @@
         #sifreEkrani { position: fixed; inset: 0; background: #f4f4f4; z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         #yukleniyor { text-align: center; padding: 20px; color: #0066cc; font-weight: bold; }
 
-        /* Sadece Logo Odaklı Header Stilleri */
         .header-logo-main { max-height: 50px; width: auto; object-fit: contain; display: block; margin: 0 auto; }
-        .baslik-alt { color: #0066cc; font-size: 14px; margin-top: 4px; font-weight: bold; display: block; }
+        .baslik-alt { color: #0066cc; font-size: 14px; margin-top: 4px; font-weight: bold; display: block; text-align: center; }
 
         .menu-container { position: relative; display: inline-block; }
         .menu-content { display: none; position: absolute; right: 0; background-color: #f9f9f9; min-width: 140px; box-shadow: 0px 8px 16px rgba(0,0,0,0.2); z-index: 1; border-radius: 6px; border: 1px solid #ccc; overflow: hidden; }
@@ -48,51 +47,22 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // HER MÜŞTERİ İÇİN BURAYI DEĞİŞTİREBİLİRSİNİZ (Örn: musteri1_sifre, musteri2_sifre)
-        const SIFRE_KEY = 'turkalp_sifre_v1';
-        const OTURUM_KEY = 'turkalp_oturum_acik';
-        
-        // HER MÜŞTERİNİN KENDİ VERİTABANI TABLOSU (Koleksiyon adı)
-        const FIRESTORE_KOLLEKSIYON = 'musteriler';
+        // HER MÜŞTERİ İÇİN DEĞİŞTİRİLECEK ALANLAR:
+        const SIFRE_KEY = 'ahmet_sifre_v1';         // Örn: ahmet_sifre_v1, mehmet_sifre_v1
+        const OTURUM_KEY = 'ahmet_oturum_acik';
+        const FIRESTORE_KOLLEKSIYON = 'ahmet_musteriler'; // Her müşterinin kendi Firebase tablosu (Örn: ahmet_musteriler)
 
         let globalListe = [];
         let seciliMusteriId = null;
 
         window.onload = function() {
-            var kayitliSifre = localStorage.getItem(SIFRE_KEY);
-            var bilgiEl = document.getElementById('sifreBilgi');
-            if (!kayitliSifre) {
-                if (bilgiEl) bilgiEl.textContent = "İlk kullanım için yeni bir şifre belirleyin:";
-            } else {
-                var oturumAcik = localStorage.getItem(OTURUM_KEY);
-                if (oturumAcik === 'true') {
-                    gizliEkraniKapat();
-                }
+            // İLK AÇILIŞTA ŞİFRE SORMAMASI İÇİN OTOMATİK OTURUM AÇTIRIYORuz:
+            if (!localStorage.getItem(SIFRE_KEY)) {
+                localStorage.setItem(SIFRE_KEY, '1234'); // Varsayılan geçici şifre
             }
-        };
-
-        window.sifreKontrol = function() {
-            var girilen = document.getElementById('girisSifre').value;
-            var kayitliSifre = localStorage.getItem(SIFRE_KEY);
-
-            if (!kayitliSifre) {
-                if (girilen.trim() === "") {
-                    alert("Şifre boş olamaz!");
-                    return;
-                }
-                localStorage.setItem(SIFRE_KEY, girilen.trim());
-                localStorage.setItem(OTURUM_KEY, 'true');
-                alert("Şifreniz başarıyla kaydedildi!");
-                gizliEkraniKapat();
-            } else {
-                if (girilen === kayitliSifre) {
-                    localStorage.setItem(OTURUM_KEY, 'true');
-                    gizliEkraniKapat();
-                } else {
-                    alert("Hatalı şifre!");
-                    document.getElementById('girisSifre').value = "";
-                }
-            }
+            localStorage.setItem(OTURUM_KEY, 'true'); // Direkt şifresiz açılmasını sağlar
+            
+            gizliEkraniKapat();
         };
 
         function gizliEkraniKapat() {
@@ -244,7 +214,7 @@
                             var hRenk = h.tip === 'verdim' ? 'red' : 'green';
                             icerik += '<div class="history">' +
                                 '<div><b>' + h.aciklama + '</b> <small>(' + h.tarih + ')</small><br>' +
-                                '<span class="' + hRenk + '">' + (h.tip === 'verdim' ? '+' : '-') + Number(h.tutar).toFixed(2) + ' ₺</span></div>' +
+                                '<span class="' + hRenk + '">' + (h.tip === 'verdim' ? '+' : '-') + Number(h.tatur).toFixed(2) + ' ₺</span></div>' +
                                 '<button onclick="event.stopPropagation(); hareketSil(\'' + m.id + '\', ' + index + ')" style="width:auto; padding:4px 8px; background:#cc0000; font-size:11px;">Sil</button>' +
                             '</div>';
                         });
@@ -372,22 +342,8 @@
     </script>
 </head>
 <body>
-
-    <!-- ŞİFRE GİRİŞ EKRANI -->
-    <div id="sifreEkrani">
-        <div class="box" style="width: 100%; max-width: 320px; text-align: center;">
-            <div style="margin-bottom: 15px;">
-                <img src="logo.png" alt="Logo" class="header-logo-main">
-                <span class="baslik-alt">Alacak - Verecek Takibi</span>
-            </div>
-            <p id="sifreBilgi" style="font-size: 13px; color: #666;">Lütfen giriş şifrenizi girin:</p>
-            <input type="password" id="girisSifre" placeholder="Şifre" style="text-align: center; font-size: 16px;">
-            <button onclick="sifreKontrol()">Giriş Yap</button>
-        </div>
-    </div>
-
-    <!-- ANA UYGULAMA -->
-    <div id="anaUygulama" style="display:none;">
+    <!-- ANA UYGULAMA (Doğrudan şifresiz açılır) -->
+    <div id="anaUygulama">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <div>
                 <img src="logo.png" alt="Logo" class="header-logo-main" style="margin:0;">
@@ -420,4 +376,9 @@
         <div id="yukleniyor">Veriler buluttan yükleniyor...</div>
 
         <!-- LİSTE -->
-        <h3>Müşteri Listesi (<span id="sayac">0</span>)</h
+        <h3>Müşteri Listesi (<span id="sayac">0</span>)</h3>
+        <div id="listeContainer"></div>
+    </div>
+</body>
+</html>
+
